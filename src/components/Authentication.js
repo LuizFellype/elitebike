@@ -1,4 +1,5 @@
 // https://github.com/lingonsaft/React-FirebaseUi-Authentication/blob/master/src/App.js
+import { Button } from "primereact/button"
 import React from "react"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import { withRouter } from "react-router-dom"
@@ -26,7 +27,6 @@ const Authentication = (props) => {
     React.useEffect(() => {
         FB.auth().onAuthStateChanged(async user => {
             if (user) {
-                console.log('user ------', user)
                 const idTokenRes = await user.getIdTokenResult()
                 setUserRoles(await getUserRoles(idTokenRes.claims.user_id))
             }
@@ -38,14 +38,13 @@ const Authentication = (props) => {
         isSignedIn,
         ...userRoles
     }), [isSignedIn, userRoles])
-
+    
     return <div className="p-mt-4">
         {isSignedIn ? (
             <>
-                <button style={{ float: 'right' }} onClick={() => FB.auth().signOut()}>Deslogar</button>
-                {/* <AuthContext.Provider value={authCtxValue}>
+                <AuthContext.Provider value={authCtxValue}>
                     {props.children}
-                </AuthContext.Provider> */}
+                </AuthContext.Provider>
             </>
         ) : (
                 <StyledFirebaseAuth
@@ -60,6 +59,6 @@ export default withRouter(Authentication)
 
 export const useAuthCtx = () => {
     const authCtxValues = React.useContext(AuthContext)
-    
+
     return authCtxValues
 }

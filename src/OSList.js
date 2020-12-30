@@ -14,6 +14,7 @@ export const OSList = withRouter((props) => {
 
   const [data, setData] = React.useState()
   const searchRef = React.useRef()
+  const selectedOsNumberRef = React.useRef()
   const { os } = props.match.params
 
   const handleKeyDown = async (e) => {
@@ -27,6 +28,13 @@ export const OSList = withRouter((props) => {
       return type
     }
   }
+
+  React.useEffect(() => {
+    if (props.selected?.osNumber === selectedOsNumberRef.current) {
+      setData(crntData => crntData?.map(os => os.osNumber === selectedOsNumberRef.current ? props.selected : os))
+    }
+    // eslint-disable-next-line
+  }, [props.selected])
 
   React.useEffect(() => {
     const OsIsNotValid = !!os && isNaN(os)
@@ -66,8 +74,8 @@ export const OSList = withRouter((props) => {
           <div className="card">
             {/* <DataTable value={data} selection={selected} onSelectionChange={e => this.setState({ selectedProduct1: e.value })} selectionMode="single"> */}
             <DataTable value={data} onSelectionChange={e => {
-              // props.onOSSelect(e.value)
-              props.history.push(`/os/${e.value.osNumber}`)
+              selectedOsNumberRef.current = e.value.osNumber
+              props.onOSSelect(e.value)
               }} selectionMode="single">
               <Column field="osNumber" header="OS"></Column>
               <Column field="name" header="Nome"></Column>

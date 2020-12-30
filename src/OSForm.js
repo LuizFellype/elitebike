@@ -2,27 +2,43 @@
 
 import React from 'react';
 import { InputText } from 'primereact/inputtext'
-import { InputTextarea } from 'primereact/inputtextarea';
-import { InputNumber } from 'primereact/inputnumber';
 import { InputMask } from 'primereact/inputmask';
 import { Calendar } from 'primereact/calendar';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
-import { normalizeCurrency, updateItembyIndex } from './helpers/normalizeOS';
+import { InputNumber } from 'primereact/inputnumber';
+import { MultiSelect } from 'primereact/multiselect';
 import { withRouter } from 'react-router-dom';
 import copy from 'clipboard-copy';
 import { useToastContext } from './hooks/ToastContext';
-import { UserExtraInfo } from './components/UserExtraInfo';
+
+const servicesOptions = [
+    { name: 'Revisão Sport', code: 'Revisão Sport' },
+    { name: 'Revisão Comp', code: 'Revisão Comp' },
+    { name: 'Revisão Pro', code: 'Revisão Pro' },
+    { name: 'Revisão Balança', code: 'Revisão Balança' },
+    { name: 'Revisão Suspensão', code: 'Revisão Suspensão' },
+
+    { name: 'Lavagem ', code: 'Lavagem' },
+    { name: 'Regulagem', code: 'Regulagem' },
+    { name: 'Desempenho', code: 'Desempenho' },
+    { name: 'Enraiar roda', code: 'Enraiar roda' },
+    { name: 'Sangria', code: 'Sangria' },
+    { name: 'Embalar', code: 'Embalar' },
+    { name: 'Montar', code: 'Montar' },
+    { name: 'Troca de peças', code: 'Troca de peças' }
+]
+
 
 const OSForm = props => {
     const toastRef = useToastContext()
-    const [extraInfo, setExtraInfo] = React.useState({})
-    const [date, setDate] = React.useState(() => new Date())
+    const [checkIn, setCheckIn] = React.useState(() => new Date())
+    const [returned, setReturned] = React.useState()
     const [phone, setPhone] = React.useState('')
-    const [services, setServices] = React.useState([{ service: 'Revisão geral', value: '150,00' }])
-    const nameRef = React.useRef()
-    const servicesRef = React.useRef(null)
-    const colorRef = React.useRef(null)
+    const [services, setServices] = React.useState()
+    const nameRef = React.useRef(null)
+    const mechanicRef = React.useRef(null)
+    const bikeRef = React.useRef(null)
     const valueRef = React.useRef(null)
 
     // pre-populate inputs  
@@ -31,136 +47,108 @@ const OSForm = props => {
             const {
                 name,
                 phone: phoneSelected,
-                services,
-                color,
+                bike,
                 value,
-                date
+                mechanic,
+                services: _services,
+                checkIn: _checkIn,
+                returned: _returned,
             } = props.selected
-
+            console.log('FORM props.selected', props.selected)
 
             nameRef.current.element.value = name
+            bikeRef.current.element.value = bike
+            mechanicRef.current.element.value = mechanic
             setPhone(phoneSelected)
-            setServices(services)
-            colorRef.current.element.value = color
+            setServices(_services)
             valueRef.current.inputEl.value = value
-            setDate(new Date(date))
-            setExtraInfo(props.selected.extraInfo || {})
+            setCheckIn(new Date(_checkIn))
+            _returned && setReturned(new Date(_returned))
         }
     }, [props.selected])
 
     const isUpdating = !!props.selected
-    const servicesTotalAmount = services.reduce((acc, { value }) => {
-        return acc + normalizeCurrency(value)
-    }, 0)
+    // const servicesTotalAmount = services.reduce((acc, { value }) => {
+    //     return acc + normalizeCurrency(value)
+    // }, 0)
 
     const handleForm = (e) => {
         e.preventDefault()
         const formValues = {
             name: nameRef.current.element.value,
+            bike: bikeRef.current.element.value,
             phone: phone,
-            services: services,
-            color: colorRef.current.element.value,
+            services,
+            mechanic: mechanicRef.current.element.value,
             value: valueRef.current.inputEl.value,
-            date: !!date ? new Date(date).getTime() : new Date().getTime(),
-            extraInfo,
+            checkIn: !!checkIn ? new Date(checkIn).getTime() : new Date().getTime(),
+            returned: !!returned ? new Date(returned).getTime() : new Date().getTime(),
         }
 
         isUpdating ? props.onSubmit({ ...props.selected, ...formValues }, props.selected.id) : props.onSubmit(formValues)
     }
 
-    const handleAddService = () => {
-        setServices([
-            ...services,
-            { service: servicesRef.current.element.value, value: valueRef.current.inputEl.value }
-        ])
-        servicesRef.current.element.value = ''
-        valueRef.current.inputEl.value = ''
-    }
-
-    const handleExtraInfoChange = React.useCallback((e) => {
-        const { id, value } = e.currentTarget
-
-        setExtraInfo({ ...extraInfo, [id]: value })
-    }, [extraInfo])
-
     if (props.viewOnly && !props.selected) return <></>
 
 
     return (
-        <Card>
-            {
-                props.selected && <div className='p-d-flex p-jc-end'>
-                    <span className="p-tag p-tag-rounded">OS SELECIONADA: <b>{isUpdating && props.selected.osNumber}</b></span>
-                </div>
-            }
+        <Card >
+            <div className='p-d-flex p-ai-center p-jc-between p-mb-2'>
+                {props.selected && <img src="https://scontent.fvix1-1.fna.fbcdn.net/v/t1.0-9/50549129_2462771803795299_8027391492240703488_o.jpg?_nc_cat=106&ccb=2&_nc_sid=09cbfe&_nc_ohc=gD1E9Bqu5TYAX8u2Cxu&_nc_ht=scontent.fvix1-1.fna&oh=0f4292a5cd4325eaa6446f5826080b66&oe=60101FE5" width='60px' alt="Elite Bike logo" />}
+                {
+                    props.selected && <span className="p-tag p-tag-rounded">OS SELECIONADA: <b>{isUpdating && props.selected.osNumber}</b></span>
+                }
+            </div>
             <form id="react-no-print" onSubmit={handleForm}>
                 <div className="p-d-flex p-flex-column">
                     <div className="p-fluid p-formgrid p-grid">
-                        <div className="p-field p-col-12 p-md-6">
+
+                        <div className="p-field p-col-6 p-sm-6 p-md-4">
                             <label htmlFor="firstname6">Nome</label>
                             <InputText disabled={props.viewOnly} id="firstname6" type="text" placeholder="ex.: Luiz Fellype" ref={nameRef} required />
                         </div>
-                        <div className="p-field p-col-10 p-md-5">
-                            <label htmlFor="phone">Phone</label>
+                        <div className="p-field p-col-6 p-sm-6 p-md-4">
+                            <label htmlFor="phone">Telefone</label>
                             <InputMask disabled={props.viewOnly} id="phone" mask="999999999?99" value={phone} onChange={e => setPhone(e.value)} required />
                         </div>
-                        
-                        <UserExtraInfo values={extraInfo} onChange={handleExtraInfoChange} viewOnly={props.viewOnly}/>
-
-                        <div className="p-field p-col-12">
-                            <label htmlFor="services">Peças / Acessórios / Serviços</label>
-                            {
-                                services.map(({ service, value }, idx) => {
-                                    return <div className='p-d-flex p-mb-1' key={idx}>
-                                        <InputTextarea disabled={props.viewOnly} id="services" type="text" rows="2" autoResize placeholder="ex.: Revisão geral, Pedal e Pastilhas." value={service} onChange={(e) => {
-                                            const valuesUpdated = updateItembyIndex(idx, services, { service: e.currentTarget.value, value })
-                                            console.log({ idx, valuesUpdated, e })
-                                            setServices(valuesUpdated)
-                                        }} />
-
-                                        <div className="p-inputgroup p-ml-2 mw-200">
-                                            <span className="p-inputgroup-addon">
-                                                <span>R$</span>
-                                            </span>
-                                            <span className="p-float-label">
-                                                <InputNumber disabled={props.viewOnly} id="value" mode="decimal" minFractionDigits={2} maxFractionDigits={2} value={normalizeCurrency(value)} onChange={(e) => {
-                                                    const value = normalizeCurrency(e.value, true)
-                                                    const valuesUpdated = updateItembyIndex(idx, services, { service, value })
-                                                    // console.log('value --', `${value}`)
-                                                    setServices(valuesUpdated)
-                                                }} />
-                                                <label htmlFor="inputgroup" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                })
-                            }
-                            <div className={`${props.viewOnly ? 'd-p-none' : 'p-d-flex hide-on-print'}`}>
-                                <InputTextarea disabled={props.viewOnly} id="services" type="text" rows="2" autoResize ref={servicesRef} />
-                                <div className="p-inputgroup p-ml-2 mw-200">
-                                    <span className="p-inputgroup-addon">
-                                        <span>R$</span>
-                                    </span>
-                                    <span className="p-float-label">
-                                        <InputNumber disabled={props.viewOnly} id="value" mode="decimal" minFractionDigits={2} maxFractionDigits={2} ref={valueRef} />
-                                        <label htmlFor="inputgroup" />
-                                    </span>
-                                </div>
-                                <Button onClick={handleAddService} icon='pi pi-plus' className="p-button-outlined p-button-lg p-button-primary p-ml-2" tooltip='Click para adicionar o serviço.' type='button' tooltipOptions={{ position: 'bottom' }} />
-                            </div>
+                        <div className="p-field p-col-6 p-sm-6 p-md-4">
+                            <label htmlFor="bike">Bike</label>
+                            <InputText disabled={props.viewOnly} id="bike" type="text" ref={bikeRef} required />
                         </div>
-                        <div className="p-field p-col-12 p-md-4">
-                            <label htmlFor="date">Data</label>
-                            <Calendar disabled={props.viewOnly} id="date" showIcon value={date} onChange={e => setDate(e.value)} dateFormat='dd/mm/yy' />
+
+                        <div className="p-field p-col-6 p-sm-6 p-lg-5">
+                            <label htmlFor="mechanic">Mecânico</label>
+                            <InputText disabled={props.viewOnly} id="mechanic" type="text" ref={mechanicRef} required />
+                        </div>
+
+
+                        <div className="p-field p-col-12 p-md-6 p-lg-7">
+                            <label htmlFor="services">Serviços</label>
+                            <MultiSelect value={services} id='services' options={servicesOptions} onChange={(e) =>
+                                setServices(e.value)
+                            } optionLabel="name" display="chip" placeholder='Selecione o(s) serviço(s)' />
+                        </div>
+
+                        <div className="p-field p-col-6 p-md-4">
+                            <label htmlFor="checkIn">Check in</label>
+                            <Calendar disabled={props.viewOnly} id="checkIn" showIcon value={checkIn} onChange={e => setCheckIn(e.value)} dateFormat='dd/mm/yy' />
                         </div>
                         <div className="p-field p-col-6 p-md-4">
-                            <label htmlFor="color">Marca/Modelo/Cor</label>
-                            <InputText disabled={props.viewOnly} id="color" type="text" ref={colorRef} />
+                            <label htmlFor="returned">Check out: </label>
+                            {returned ? <Calendar disabled id="checkIn" showIcon value={new Date(returned)} dateFormat='dd/mm/yy' /> : <Button onClick={() => setReturned(new Date().getTime())} label='Retirar' tooltip='Clique e salve para adicionar a data de retirada'/>}
                         </div>
 
-                        <div className="p-field p-col-6 p-md-4 p-text-center" style={{ fontSize: '1.25rem' }}>
-                            <h3 className='p-mt-1 p-mb-2'>Total</h3>
-                            <span>R$ {servicesTotalAmount}</span>
+                        <div className="p-field p-col-12 p-md-4">
+                            <label htmlFor="value">Valor</label>
+                            <div className="p-inputgroup">
+                                <span className="p-inputgroup-addon">
+                                    <span>R$</span>
+                                </span>
+                                <span className="p-float-label">
+                                    <InputNumber disabled={props.viewOnly} id="value" mode="decimal" minFractionDigits={2} maxFractionDigits={2} ref={valueRef} />
+                                    <label htmlFor="inputgroup" />
+                                </span>
+                            </div>
                         </div>
                     </div>
 
