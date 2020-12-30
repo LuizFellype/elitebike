@@ -1,5 +1,4 @@
 // https://github.com/lingonsaft/React-FirebaseUi-Authentication/blob/master/src/App.js
-import { Button } from "primereact/button"
 import React from "react"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import { withRouter } from "react-router-dom"
