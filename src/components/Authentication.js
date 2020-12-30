@@ -3,6 +3,7 @@ import React from "react"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import { withRouter } from "react-router-dom"
 import { FB } from "../firebaseConfig"
+import { CONSTS } from "../helpers/constants"
 import { getUserRoles } from "../services/client"
 
 const uiConfig = {
@@ -37,7 +38,7 @@ const Authentication = (props) => {
         isSignedIn,
         ...userRoles
     }), [isSignedIn, userRoles])
-    
+
     return <div className="p-mt-4">
         {isSignedIn ? (
             <>
@@ -46,10 +47,15 @@ const Authentication = (props) => {
                 </AuthContext.Provider>
             </>
         ) : (
-                <StyledFirebaseAuth
-                    uiConfig={uiConfig}
-                    firebaseAuth={FB.auth()}
-                />
+                <>
+                <div className='p-d-flex p-jc-center p-my-2'>
+                    <img src={CONSTS.LOGOURL} width='200px' alt='Elite Bike Logo' />
+                </div>
+                    <StyledFirebaseAuth
+                        uiConfig={uiConfig}
+                        firebaseAuth={FB.auth()}
+                    />
+                </>
             )}
     </div>
 }
