@@ -58,14 +58,16 @@ function OsPage(props) {
 
         checkForLastOsNumber()
     }, [])
-    console.log({ isAdmin, os })
+    // console.log({ isAdmin, os })
     return (
         <>
             <Toast ref={toastRef} />
 
             <div className='p-d-flex p-jc-between p-ai-center demo-container p-mx-2 p-mt-4 p-m-sm-3 p-mx-lg-6'>
-                {!!os ? <Button onClick={() => props.history.push('/')} icon='pi pi-home' tooltip='Ir para pagina principal' className='p-button-outlined' /> : <div />}
-                <Button onClick={() => FB.auth().signOut()} icon='pi pi-sign-out' tooltip='Deslogar' className='p-button-outlined' />
+                {!!os ? <Button onClick={() => props.history.push('/')} icon='pi pi-home' tooltip='Ir para pagina principal' className='p-button-outlined' /> : <>
+                    <div />
+                    <Button onClick={() => FB.auth().signOut()} icon='pi pi-sign-out' tooltip='Deslogar' className='p-button-outlined' />
+                </>}
             </div>
 
 

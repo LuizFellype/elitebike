@@ -55,7 +55,7 @@ const OSForm = props => {
                 checkIn: _checkIn,
                 returned: _returned,
             } = props.selected
-            console.log('FORM props.selected', props.selected)
+            // console.log('FORM props.selected', props.selected)
 
             nameRef.current.element.value = name
             bikeRef.current.element.value = bike
@@ -125,7 +125,7 @@ const OSForm = props => {
 
                         <div className="p-field p-col-12 p-md-6 p-lg-7">
                             <label htmlFor="services">Serviços</label>
-                            <MultiSelect value={services} id='services' options={servicesOptions} onChange={(e) =>
+                            <MultiSelect disabled={props.viewOnly} value={services} id='services' options={servicesOptions} onChange={(e) =>
                                 setServices(e.value)
                             } optionLabel="name" display="chip" placeholder='Selecione o(s) serviço(s)' />
                         </div>
